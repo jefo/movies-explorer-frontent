@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import './App.css';
 import Header from '../Header/Header';
 import Main from '../Main/Main';
@@ -13,11 +13,11 @@ import Navigation from '../Navigation/Navigation';
 import MainApi from '../../utils/MainApi';
 import MoviesApi from '../../utils/MoviesApi';
 import MoviesCardList from '../Movies/MoviesCardList/MoviesCardList';
-import useLogin from '../../hooks/useLogin';
+import { useCurrentUser } from '../../utils/CurrentUserContext';
+import ProtectedRoute from '../ProtectedRoute/ProtectedRoute';
 
 function App() {
-  useLogin();
-  const [loginError, setLoginError] = useState(false);
+  const { currentUser, token } = useCurrentUser();
   const [favorites, setFavorites] = useState([]);
   const [allMovies, setAllMovies] = useState([]);
   const [movies, setMovies] = useState([]);
@@ -26,10 +26,10 @@ function App() {
   const [filteredMovies, setFilteredMovies] = useState(allMovies);
   const [visibleMovies, setVisibleMovies] = useState(calculateVisibleMovies());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [registeredError, setRegisteredError] = useState(false);
 
-  const navigate = useNavigate();
   const location = useLocation();
+
+  console.log('loggedIn', token);
 
   const openMenu = () => {
     setIsMenuOpen(true);
@@ -122,47 +122,62 @@ function App() {
     }
   }, [shortFilm, searchQuery, movies]);
 
-
   return (
-    <div className="page">
-      <Header openMenu={openMenu} />
-      <Routes>
-        <Route path="/" element={<Main />} />
-        <Route path="/movies" element={<Movies
-          setSearchQuery={setSearchQuery}
-          loadMoreMovies={loadMoreMovies}
-          setShortFilm={setShortFilm}
-        />}>
-          <Route path="all" element={<MoviesCardList
-            filteredMovies={filteredMovies}
-            visibleMovies={visibleMovies}
-            movies={allMovies}
-            shortFilm={shortFilm}
-            favorites={favorites}
-            addToFavorites={addToFavorites}
-            removeFromFavorites={removeFromFavorites}
-          />} />
-          <Route path="saved-movies" element={<MoviesCardList
-            filteredMovies={filteredMovies}
-            visibleMovies={visibleMovies}
-            movies={allMovies}
-            shortFilm={shortFilm}
-            favorites={favorites}
-            addToFavorites={addToFavorites}
-            removeFromFavorites={removeFromFavorites}
-          />} />
-        </Route>
+    <>
+      <div className="page">
+        <Header openMenu={openMenu} />
+        <Routes>
+          <Route path="/" element={<Main />} />
+          <Route path="/movies" element={<Movies
+            setSearchQuery={setSearchQuery}
+            loadMoreMovies={loadMoreMovies}
+            setShortFilm={setShortFilm}
+          />}>
+            <Route
+              path="all"
+              element={
+                <ProtectedRoute loggedIn={!!token}>
+                  <MoviesCardList
+                    filteredMovies={filteredMovies}
+                    visibleMovies={visibleMovies}
+                    movies={allMovies}
+                    shortFilm={shortFilm}
+                    favorites={favorites}
+                    addToFavorites={addToFavorites}
+                    removeFromFavorites={removeFromFavorites}
+                  />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="saved-movies"
+              element={
+                <ProtectedRoute loggedIn={!!token}>
+                  <MoviesCardList
+                    filteredMovies={filteredMovies}
+                    visibleMovies={visibleMovies}
+                    movies={allMovies}
+                    shortFilm={shortFilm}
+                    favorites={favorites}
+                    addToFavorites={addToFavorites}
+                    removeFromFavorites={removeFromFavorites}
+                  />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
 
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/signin" element={<Login />} />
-        <Route
-          path="/signup"
-          element={<Register />}
-        />
-        <Route path="/error" element={<Error />} />
-      </Routes>
-      <Navigation isOpen={isMenuOpen} closeMenu={closeMenu} />
-    </div>
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/signin" element={<Login />} />
+          <Route
+            path="/signup"
+            element={<Register />}
+          />
+          <Route path="/error" element={<Error />} />
+        </Routes>
+        <Navigation isOpen={isMenuOpen} closeMenu={closeMenu} />
+      </div>
+    </>
   );
 }
 

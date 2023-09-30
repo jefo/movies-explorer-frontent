@@ -4,11 +4,11 @@ import CallbackValidation from "../../utils/CallbackValidation";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../images/logo.svg";
 import Form from "../Form/Form";
-import useLogin from "../../hooks/useLogin";
+import { useCurrentUser } from "../../utils/CurrentUserContext";
 
 function Login() {
   const formCallbackValidation = CallbackValidation();
-  const { login, error } = useLogin();
+  const { login, error } = useCurrentUser();
   const navigate = useNavigate();
   const { email, password } = formCallbackValidation.values;
   
