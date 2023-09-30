@@ -13,8 +13,10 @@ import Navigation from '../Navigation/Navigation';
 import MainApi from '../../utils/MainApi';
 import MoviesApi from '../../utils/MoviesApi';
 import MoviesCardList from '../Movies/MoviesCardList/MoviesCardList';
+import useLogin from '../../hooks/useLogin';
 
 function App() {
+  useLogin();
   const [loginError, setLoginError] = useState(false);
   const [favorites, setFavorites] = useState([]);
   const [allMovies, setAllMovies] = useState([]);
@@ -36,34 +38,6 @@ function App() {
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
-
-  function handleRegister(name, email, password) {
-    MainApi.register(name, email, password)
-      .then((data) => {
-        if (data) {
-          navigate('/signin');
-        }
-      })
-      .catch(() => {
-        setRegisteredError(true);
-      });
-  }
-
-  function handleRegister(name, email, password) {
-    MainApi.register(name, email, password)
-      .then((data) => {
-        if (data) {
-          handleLogin(email, password);
-          history.push("/signin");
-        }
-      })
-      .catch(() => {
-        setRegisteredError(true);
-      });
-  }
-
-
-
 
   function calculateVisibleMovies() {
     const screenWidth = window.innerWidth;
@@ -88,8 +62,6 @@ function App() {
     setFavorites(updatedFavorites)
   }
 
-
-
   useEffect(() => {
     // Handle route changes using useEffect
     if (location.pathname === '/movies/all') {
@@ -102,7 +74,9 @@ function App() {
   }, [location.pathname, allMovies, favorites]);
 
   useEffect(() => {
-    setFavorites(JSON.parse(localStorage.favorites));
+    if (localStorage.favorites) {
+      setFavorites(JSON.parse(localStorage.favorites));
+    }
     // console.log('favorites', localStorage.favorites);
   }, []);
 
@@ -119,6 +93,7 @@ function App() {
   const loadMoreMovies = () => {
     setVisibleMovies((prevVisibleMovies) => prevVisibleMovies + calculateVisibleMovies());
   };
+
 
   useEffect(() => {
     MoviesApi.getMovies().then((result) => {
@@ -179,10 +154,10 @@ function App() {
         </Route>
 
         <Route path="/profile" element={<Profile />} />
-        <Route path="/signin" element={<Login handleLogin={handleLogin} loginError={loginError} />} />
+        <Route path="/signin" element={<Login />} />
         <Route
           path="/signup"
-          element={<Register handleRegister={handleRegister} registeredError={registeredError} />}
+          element={<Register />}
         />
         <Route path="/error" element={<Error />} />
       </Routes>
