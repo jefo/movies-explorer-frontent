@@ -20,10 +20,10 @@ export function CurrentUserProvider({ children }) {
             if (!resp.token) {
                 throw new Error('No token received');
             }
-            localStorage.setItem('jwt', resp.token); // Сохраняем токен в localStorage
+            localStorage.setItem('jwt', resp.token);
             setToken(resp.token);
             console.log('token', resp.token);
-            navigate('/movies/all');
+            navigate('/movies');
         } catch (e) {
             console.error(e);
             setError(e.message);

@@ -5,11 +5,11 @@ import Form from "../Form/Form";
 import logo from "../../images/logo.svg";
 import CallbackValidation from "../../utils/CallbackValidation";
 import MainApi from "../../utils/MainApi";
-import useLogin from "../../hooks/useLogin";
+import { useCurrentUser } from "../../utils/CurrentUserContext";
 
 function Register() {
   const formCallbackValidation = CallbackValidation();
-  const { login } = useLogin();
+  const { login } = useCurrentUser();
   const [error, setError] = useState(false);
   const { email, password, name } = formCallbackValidation.values;
   const { values, onFocus, handleChange, isFocused, errors } =
@@ -19,9 +19,6 @@ function Register() {
 
   async function handleRegister(name, email, password) {
     try {
-      console.log('name', name);
-      console.log('email', email);
-      console.log('password', password);
       await MainApi.register(name, email, password);
       await login(email, password);
       navigate("/signin");
