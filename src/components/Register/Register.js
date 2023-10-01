@@ -21,7 +21,7 @@ function Register() {
     try {
       await MainApi.register(name, email, password);
       await login(email, password);
-      navigate("/signin");
+      navigate("/movies");
     }
     catch (e) {
       setError(e.message);

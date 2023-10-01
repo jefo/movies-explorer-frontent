@@ -41,7 +41,6 @@ export function CurrentUserProvider({ children }) {
         if (!token) {
             return;
         }
-        console.log('token', token);
         MainApi.getInfo(token)
             .then((userInfo) => {
                 console.log('userInfo', userInfo)
